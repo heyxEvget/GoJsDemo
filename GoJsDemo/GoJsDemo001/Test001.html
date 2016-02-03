@@ -1,0 +1,94 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+<title>Minimal GoJS Sample</title>
+<!-- Copyright 1998-2016 by Northwoods Software Corporation. -->
+<meta charset="UTF-8">
+<script src="Scripts/go.js"></script>
+<script id="code">
+    function init() {
+        var $ = go.GraphObject.make;
+
+        myDiagram =
+          $(go.Diagram, "myDiagram",
+            {
+                initialContentAlignment: go.Spot.Center,
+                layout: $(go.TreeLayout),
+                "undoManager.isEnabled": true
+            });
+
+        myDiagram.nodeTemplate =
+          $(go.Node, "Spot",
+            $(go.Panel, "Auto",
+              $(go.Shape,  // the gray border around the whole node
+                { fill: "transparent", stroke: "gray" },
+                new go.Binding("figure")),
+              $(go.Panel, "Table",
+                $(go.RowColumnDefinition, { row: 0, background: "black", height: 3 }, new go.Binding("background", "color")),
+                $(go.RowColumnDefinition, { column: 0, background: "black" }, new go.Binding("background", "color")),
+                $(go.Shape,
+                  { // the main icon, in the left column
+                      column: 0, row: 1, fill: "white", strokeWidth: 0,
+                      width: 20, margin: 4, geometryStretch: go.GraphObject.Uniform,
+                      geometryString: "F1 M27.879 5.879l-3.757-3.757c-1.167-1.167-3.471-2.121-5.121-2.121h-14c-1.65 0-3 1.35-3 3v26c0 1.65 1.35 3 3 3h22c1.65 0 3-1.35 3-3v-18c0-1.65-0.955-3.955-2.121-5.121zM20 4.236c0.069 0.025 0.139 0.053 0.211 0.082 0.564 0.234 0.956 0.505 1.082 0.631l3.757 3.757c0.126 0.126 0.397 0.517 0.631 1.082 0.030 0.072 0.057 0.143 0.082 0.211h-5.764v-5.764zM26 28h-20v-24h12v8h8v16zM8 16h16v2h-16zM8 20h16v2h-16zM8 24h16v2h-16z"
+                  }),
+                $(go.TextBlock,
+                  { column: 1, row: 1, width: 100, margin: 2, textAlign: "center" },
+                  new go.Binding("text"))
+              )
+            ),
+            $(go.Shape,
+              { // the normally not-visible icon at the top left
+                  alignment: new go.Spot(0, 0, -5, 0), alignmentFocus: go.Spot.TopRight,
+                  desiredSize: new go.Size(10, 10), visible: false
+              },
+              new go.Binding("visible", "showIcon"))
+          );
+
+        go.Shape.defineFigureGenerator("Hex", function (shape, w, h) {
+            var geo = new go.Geometry();
+            geo.add(new go.PathFigure(10, 0)
+                     .add(new go.PathSegment(go.PathSegment.Line, w - 10, 0))
+                     .add(new go.PathSegment(go.PathSegment.Line, w, h / 2))
+                     .add(new go.PathSegment(go.PathSegment.Line, w - 10, h))
+                     .add(new go.PathSegment(go.PathSegment.Line, 10, h))
+                     .add(new go.PathSegment(go.PathSegment.Line, 0, h / 2).close()));
+            // available space within this figure does not include the triangular portions on either side
+            geo.spot1 = new go.Spot(0, 0, 10, 0);
+            geo.spot2 = new go.Spot(1, 1, -10, 0);
+            return geo;
+        });
+
+        myDiagram.nodeTemplateMap.add("Hex",
+          $(go.Node, "Auto",
+            $(go.Shape, "Hex",  // this figure is defined above
+              { fill: "transparent", stroke: "gray" },
+              new go.Binding("figure")),
+            $(go.Panel, "Table",
+              $(go.RowColumnDefinition, { row: 0, background: "black", height: 3 }, new go.Binding("background", "color")),
+              $(go.RowColumnDefinition, { column: 0, background: "black" }, new go.Binding("background", "color")),
+              $(go.Shape,
+                { // the main icon, in the left column
+                    column: 0, row: 1, fill: "white", strokeWidth: 0,
+                    width: 20, margin: 4, geometryStretch: go.GraphObject.Uniform,
+                    geometryString: "F1 M11.366 22.564l1.291-1.807-1.414-1.414-1.807 1.291c-0.335-0.187-0.694-0.337-1.071-0.444l-0.365-2.19h-2l-0.365 2.19c-0.377 0.107-0.736 0.256-1.071 0.444l-1.807-1.291-1.414 1.414 1.291 1.807c-0.187 0.335-0.337 0.694-0.443 1.071l-2.19 0.365v2l2.19 0.365c0.107 0.377 0.256 0.736 0.444 1.071l-1.291 1.807 1.414 1.414 1.807-1.291c0.335 0.187 0.694 0.337 1.071 0.444l0.365 2.19h2l0.365-2.19c0.377-0.107 0.736-0.256 1.071-0.444l1.807 1.291 1.414-1.414-1.291-1.807c0.187-0.335 0.337-0.694 0.444-1.071l2.19-0.365v-2l-2.19-0.365c-0.107-0.377-0.256-0.736-0.444-1.071zM7 27c-1.105 0-2-0.895-2-2s0.895-2 2-2 2 0.895 2 2-0.895 2-2 2zM32 12v-2l-2.106-0.383c-0.039-0.251-0.088-0.499-0.148-0.743l1.799-1.159-0.765-1.848-2.092 0.452c-0.132-0.216-0.273-0.426-0.422-0.629l1.219-1.761-1.414-1.414-1.761 1.219c-0.203-0.149-0.413-0.29-0.629-0.422l0.452-2.092-1.848-0.765-1.159 1.799c-0.244-0.059-0.492-0.109-0.743-0.148l-0.383-2.106h-2l-0.383 2.106c-0.251 0.039-0.499 0.088-0.743 0.148l-1.159-1.799-1.848 0.765 0.452 2.092c-0.216 0.132-0.426 0.273-0.629 0.422l-1.761-1.219-1.414 1.414 1.219 1.761c-0.149 0.203-0.29 0.413-0.422 0.629l-2.092-0.452-0.765 1.848 1.799 1.159c-0.059 0.244-0.109 0.492-0.148 0.743l-2.106 0.383v2l2.106 0.383c0.039 0.251 0.088 0.499 0.148 0.743l-1.799 1.159 0.765 1.848 2.092-0.452c0.132 0.216 0.273 0.426 0.422 0.629l-1.219 1.761 1.414 1.414 1.761-1.219c0.203 0.149 0.413 0.29 0.629 0.422l-0.452 2.092 1.848 0.765 1.159-1.799c0.244 0.059 0.492 0.109 0.743 0.148l0.383 2.106h2l0.383-2.106c0.251-0.039 0.499-0.088 0.743-0.148l1.159 1.799 1.848-0.765-0.452-2.092c0.216-0.132 0.426-0.273 0.629-0.422l1.761 1.219 1.414-1.414-1.219-1.761c0.149-0.203 0.29-0.413 0.422-0.629l2.092 0.452 0.765-1.848-1.799-1.159c0.059-0.244 0.109-0.492 0.148-0.743l2.106-0.383zM21 15.35c-2.402 0-4.35-1.948-4.35-4.35s1.948-4.35 4.35-4.35 4.35 1.948 4.35 4.35c0 2.402-1.948 4.35-4.35 4.35z"
+                }),
+              $(go.TextBlock,
+                { column: 1, row: 1, width: 100, textAlign: "center" },
+                new go.Binding("text"))
+            )
+          ));
+
+        myDiagram.model = new go.GraphLinksModel([
+          { key: 1, color: "green", text: "This is a rectangular green node", showIcon: false },
+          { key: 2, color: "purple", text: "this is purple", category: "Hex" }
+        ], [
+          { from: 1, to: 2 }
+        ]);
+    }
+</script>
+</head>
+<body onload="init()">
+  <div id="myDiagram" style="border: solid 1px black; width:100%; height:600px"></div>
+</body>
+</html>
